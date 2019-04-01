@@ -1,0 +1,14 @@
+[Unit]
+Description=Shotgun Status Event service
+After=multi-user.target
+
+[Service]
+Type=forking
+ExecStart=/Rnd/anaconda2/bin/python /opt/status_dm.py --pid /tmp/status_event.pid --log /tmp/status_event.log
+Restart=always
+PIDFile=/tmp/status_event.pid
+WorkingDirectory=/opt/
+ExecStop=/bin/kill $MAINPID
+
+[Install]
+WantedBy=multi-user.target
