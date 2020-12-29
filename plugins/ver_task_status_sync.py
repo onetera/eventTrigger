@@ -26,9 +26,9 @@ class SingletonInstane:
 
 
 sg = sa.Shotgun(
-                'https://wswg.shotgunstudio.com',
-                api_key='d4f25676239bff829454edd3a5d97bac13c6d38c526367f9623286c4775ca4dd',
-                script_name = 'utils',
+                'https://west.shotgunstudio.com',
+                api_key='6h&ziahfuGbqdubxrxeyopinl',
+                script_name = 'eventTrigger',
             )
 
 def get_version_status( last_id ):
@@ -108,7 +108,7 @@ def sync_version_to_task( old_id ):
                                             result['entity']['name']  )
             print '{:15} : {}'.format( 'created_at' , created )
             print '{:15} : {}'.format( 'Description', result['description'] )
-            print 'https://wswg.shotgunstudio.com/detail/task/{}'.format( result['entity.Version.sg_task']['id'] )
+            print 'https://west.shotgunstudio.com/detail/task/{}'.format( result['entity.Version.sg_task']['id'] )
             print '\n'
 
             return result['id']
@@ -138,7 +138,6 @@ def main2():
 #        old_id = result['id']
 
 
-#    print '[ old id ]', old_id
     while True:
         try:
             time.sleep( 10 )
