@@ -24,11 +24,12 @@ sg = sa.Shotgun(
     script_name = 'eventTrigger',
 )
 
-PLUGIN_PATH= '/storenext/inhouse/tool/shotgun/event_trigger/plugins' 
-#LOG_DIR =  '/storenext/inhouse/tool/shotgun/eventTrigger/log'
-LOG_DIR = '/storenext/inhouse/log/eventTrigger'
-#PLUGIN_PATH=os.path.join( os.getcwd() , 'plugins' )
-#LOG_DIR = os.path.join( os.getcwd() , 'log')
+
+# PLUGIN_PATH= '/storenext/inhouse/tool/shotgun/event_trigger/plugins'
+# LOG_DIR = '/storenext/inhouse/log/eventTrigger'
+
+PLUGIN_PATH=os.path.join( os.getcwd() , 'plugins' )
+LOG_DIR = os.path.join( os.getcwd() , 'log')
 
 
 
@@ -48,6 +49,7 @@ class Plugin:
         self._path = path
         self._name = basename( path )
         self.load()
+        self.event_file = './last_id'  + os.sep +  self._name + '.id'
 
     def load(self):
         self.plugin = imp.load_source( self._name , self._path )
@@ -59,20 +61,20 @@ class Plugin:
     def __str__(self):
         return str( self.plugin )
 
+    def excution_status(self):
+        with open('./config.yml') as f:
+            data = yaml.load(f)
+        status = data['plugins'][__name__]['excution']
+        return status
+
     def set_status_id( self , _id ):
-        event_file =  '/storenext/inhouse/tool/shotgun/event_trigger/last_id' + os.sep + self._name + '.id' 
-        #event_file = os.path.join( '/storenext/inhouse/tool/shotgun/eventTrigger/last_id' , self._name + '.id' )
-        #event_file = os.path.join( os.getcwd(), 'last_id' , self._name + '.id' )
-        with open( event_file , 'w' ) as f:
+        with open( self.event_file , 'w' ) as f:
             f.write( str(_id) )
 
     def get_status_id( self ):
-        status_file =  '/storenext/inhouse/tool/shotgun/event_trigger/last_id' + os.sep +  self._name + '.id' 
-        #status_file =  os.path.join( '/storenext/inhouse/tool/shotgun/eventTrigger/last_id', self._name + '.id' )
-        #status_file =  os.path.join( '/storenext/inhouse/tool/shotgun/eventTrigger/last_id', self._name + '.id' )
-        if not os.path.exists( status_file ):
+        if not os.path.exists( self.event_file ):
             return False
-        with open( status_file ) as f:
+        with open( self.event_file ) as f:
             result = f.read()
         return int(result)
 
@@ -115,17 +117,22 @@ def main():
        # sys.stdout.flush()
        # continue
 
-#        for plugin in pc:
-#            last_id = plugin.get_status_id()
-#            result  = plugin.main( last_id )
+        # for plugin in pc:
+        #     last_id = plugin.get_status_id()
+        #     result  = plugin.main( last_id )
 #            plugin.set_status_id( result )
 #            sys.stdout.flush()
 #        continue
 
+        #########################################################################
+        ##  Excution part
+        ##  Non-comment for excution part
+        #########################################################################
         for plugin in pc:
             try:
-                last_id = plugin.get_status_id()
-                result = plugin.main( last_id )
+                if plugin.excution_status():
+                    last_id = plugin.get_status_id()
+                    result = plugin.main( last_id )
             except sa.ProtocolError:
                 print "Protocol Error"
             except KeyboardInterrupt:
@@ -137,7 +144,8 @@ def main():
                 print '^'*80
                 result = last_id + 1
             finally:
-                plugin.set_status_id( result )
+                if plugin.excution_status():
+                    plugin.set_status_id( result )
                 sys.stdout.flush()
 #
 
@@ -147,7 +155,7 @@ def basename( path ):
 
 if __name__ == '__main__':
     main()
-
+    import yaml
 
 
 

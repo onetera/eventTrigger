@@ -6,7 +6,7 @@ import time
 import shotgun_api3 as sa
 import os
 
-
+import yaml
 
 #global MAIN_ID
 MAIN_ID = 0
@@ -31,25 +31,21 @@ sg = sa.Shotgun(
                 script_name = 'eventTrigger',
             )
 
-def get_version_status( last_id ):
-    pass
 
+# def set_status_id( _id ):
+#     with open( './last_id/ver_status_id.tx' , 'w' ) as f:
+#         f.write( str(_id) )
+#
+# def get_status_id( ):
+#     status_file = './last_id/ver_status_id.tx'
+#     if not os.path.exists( status_file ):
+#
+#         return False
+#     with open( status_file ) as f:
+#         result = f.read()
+#     print 'result id : ', result
+#     return int(result)
 
-
-
-def set_status_id( _id ):
-    with open( '/tmp/ver_status_id.tx' , 'w' ) as f:
-        f.write( str(_id) )
-
-def get_status_id( ):
-    status_file = '/tmp/ver_status_id.tx'
-    if not os.path.exists( status_file ):
-
-        return False
-    with open( status_file ) as f:
-        result = f.read()
-    print 'result id : ', result
-    return int(result)
 
 def sync_version_to_task( old_id ):
 #    if MAIN_ID == old_id:
