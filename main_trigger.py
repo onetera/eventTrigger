@@ -17,6 +17,7 @@ import datetime as dt
 import shotgun_api3 as sa
 import os
 import glob
+import yaml
 
 sg = sa.Shotgun(
     'https://west.shotgunstudio.com',
@@ -28,8 +29,9 @@ sg = sa.Shotgun(
 # PLUGIN_PATH= '/storenext/inhouse/tool/shotgun/event_trigger/plugins'
 # LOG_DIR = '/storenext/inhouse/log/eventTrigger'
 
-PLUGIN_PATH=os.path.join( os.getcwd() , 'plugins' )
-LOG_DIR = os.path.join( os.getcwd() , 'log')
+MOD_DIR     = os.path.abspath( os.path.dirname( __file__ ) )
+PLUGIN_PATH = os.path.join( MOD_DIR , 'plugins' )
+LOG_DIR     = os.path.join( MOD_DIR , 'log'     )
 
 
 
@@ -49,7 +51,7 @@ class Plugin:
         self._path = path
         self._name = basename( path )
         self.load()
-        self.event_file = './last_id'  + os.sep +  self._name + '.id'
+        self.event_file = MOD_DIR + os.sep + './last_id'  + os.sep +  self._name + '.id'
 
     def load(self):
         self.plugin = imp.load_source( self._name , self._path )
@@ -62,9 +64,9 @@ class Plugin:
         return str( self.plugin )
 
     def excution_status(self):
-        with open('./config.yml') as f:
-            data = yaml.load(f)
-        status = data['plugins'][__name__]['excution']
+        with open( MOD_DIR + os.sep + './config.yml') as f:
+            data = yaml.load( f, Loader = yaml.FullLoader )
+        status = data['plugins'][self._name]['excution']
         return status
 
     def set_status_id( self , _id ):
@@ -81,6 +83,14 @@ class Plugin:
 def timelog():
     return time.strftime( '%Y-%m-%d %H:%M:%S', time.localtime() )
 
+def log_path():
+    log_file = 'event.'+ dt.datetime.strftime( dt.datetime.now() , '%Y%m' )+ '.log'
+    log_path = os.path.join( LOG_DIR , log_file ) 
+    if not os.path.exists( log_path ):
+        f = open( log_path ,'w' )
+        f.close()
+    return log_file
+
 def main():
     # pc = PluginCollection()
     # while True:
@@ -93,11 +103,14 @@ def main():
     #     continue
     # return
 
-    log_file = 'event.'+ dt.datetime.strftime( dt.datetime.now() , '%Y%m' )+ '.log'
-    log_path = os.path.join( LOG_DIR , log_file ) 
-    if not os.path.exists( log_path ):
-        f = open( log_path ,'w' )
-        f.close()
+#    log_file = 'event.'+ dt.datetime.strftime( dt.datetime.now() , '%Y%m' )+ '.log'
+#    log_path = os.path.join( LOG_DIR , log_file ) 
+#    if not os.path.exists( log_path ):
+#        f = open( log_path ,'w' )
+#        f.close()
+    
+    log_file = log_path()
+    
     so = open( log_path, 'a+')
     sys.stdout = so
 
@@ -111,7 +124,11 @@ def main():
     sys.stdout.flush()
 
     while True:
-        time.sleep( 5 )
+        time.sleep( 3 )
+
+        log_file = log_path()
+        so = open( log_path, 'a+')
+        sys.stdout = so
 
        # print time.strftime( '%Y-%m-%d %H:%M:%S', time.localtime() )
        # sys.stdout.flush()
@@ -129,6 +146,11 @@ def main():
         ##  Non-comment for excution part
         #########################################################################
         for plugin in pc:
+#            if plugin.excution_status():
+#                last_id = plugin.get_status_id()
+#                result = plugin.main( last_id )
+#            continue
+
             try:
                 if plugin.excution_status():
                     last_id = plugin.get_status_id()
@@ -155,7 +177,6 @@ def basename( path ):
 
 if __name__ == '__main__':
     main()
-    import yaml
 
 
 
