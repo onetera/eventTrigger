@@ -46,6 +46,27 @@ sg = sa.Shotgun(
 #     print 'result id : ', result
 #     return int(result)
 
+def send_rchat_msg( content , task ):
+    from rocketchat.api import RocketChatAPI
+    api = RocketChatAPI(
+                    settings={
+                        'username':'shotgun@west.co.kr',
+                        'password':'west',
+                        'domain':'http://10.0.20.73:3000'
+                        }
+                )
+
+    if 'anim' in task :
+        user = u'@Animation_윤호근' 
+    elif 'rig' in task:
+        user = u'@Rigging_전병근'
+    elif 'sim' in task:
+        user = u'@Rigging_전병근'
+
+    room = api.create_ip_room( user )
+    api.send_message( u'Status가 tel로 변경되었습니다.', room['id'] )
+    api.send_message( content, room['id'] )
+
 
 def sync_version_to_task( old_id ):
 #    if MAIN_ID == old_id:
@@ -91,21 +112,26 @@ def sync_version_to_task( old_id ):
     # pprint( result )
     # print '\n'
 
+    updated = ''
     if result and result['entity'] and result['entity.Version.sg_task']:
-        updated = sg.update(
+        if not DEV:
+            updated = sg.update(
                     'Task', result['entity.Version.sg_task']['id'],
                     {'sg_status_list':result['entity.Version.sg_status_list'] }
                    )
         if updated:
-            created = result['created_at'].strftime('%Y-%m-%d %H:%M:%S')
+            created   = result['created_at'].strftime('%Y-%m-%d %H:%M:%S')
+            page_addr = 'https://west.shotgunstudio.com/detail/task/{}'.format( result['entity.Version.sg_task']['id'] )
             print '[Version status update Task status]','*'*50
             print '{:15} : {}'.format( 'ID'         , result['id'] )
             print '{:15} : {} / {}'.format( 'Project'    , result['project.Project.name'],
                                             result['entity']['name']  )
             print '{:15} : {}'.format( 'created_at' , created )
             print '{:15} : {}'.format( 'Description', result['description'] )
-            print 'https://west.shotgunstudio.com/detail/task/{}'.format( result['entity.Version.sg_task']['id'] )
+            print page_addr
             print '\n'
+
+            send_rchat_msg( page_addr, result['entity.Version.sg_task'] )
 
             return result['id']
         else:
