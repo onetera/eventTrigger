@@ -83,13 +83,13 @@ class Plugin:
 def timelog():
     return time.strftime( '%Y-%m-%d %H:%M:%S', time.localtime() )
 
-def log_path():
+def log_filepath():
     log_file = 'event.'+ dt.datetime.strftime( dt.datetime.now() , '%Y%m' )+ '.log'
     log_path = os.path.join( LOG_DIR , log_file ) 
     if not os.path.exists( log_path ):
         f = open( log_path ,'w' )
         f.close()
-    return log_file
+    return log_path
 
 def main():
     # pc = PluginCollection()
@@ -109,7 +109,7 @@ def main():
 #        f = open( log_path ,'w' )
 #        f.close()
     
-    log_file = log_path()
+    log_path = log_filepath()
     
     so = open( log_path, 'a+')
     sys.stdout = so
@@ -126,7 +126,7 @@ def main():
     while True:
         time.sleep( 3 )
 
-        log_file = log_path()
+        log_path = log_filepath()
         so = open( log_path, 'a+')
         sys.stdout = so
 
