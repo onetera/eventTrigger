@@ -7,9 +7,11 @@ import shotgun_api3 as sa
 import os
 
 import yaml
+from rocketchat.api import RocketChatAPI
 
 #global MAIN_ID
 MAIN_ID = 0
+DEV = 0
 
 class SingletonInstane:
     __instance = None
@@ -47,7 +49,6 @@ sg = sa.Shotgun(
 #     return int(result)
 
 def send_rchat_msg( content , task ):
-    from rocketchat.api import RocketChatAPI
     api = RocketChatAPI(
                     settings={
                         'username':'shotgun@west.co.kr',
@@ -56,6 +57,7 @@ def send_rchat_msg( content , task ):
                         }
                 )
 
+    user = ''
     if 'anim' in task :
         user = u'@Animation_윤호근' 
     elif 'rig' in task:
@@ -63,9 +65,13 @@ def send_rchat_msg( content , task ):
     elif 'sim' in task:
         user = u'@Rigging_전병근'
 
-    room = api.create_ip_room( user )
+    if not user:
+        return
+
+    room = api.create_im_room( user )
     api.send_message( u'Status가 tel로 변경되었습니다.', room['id'] )
     api.send_message( content, room['id'] )
+    print "\n[ Rockec Chat ] Sending message\n"
 
 
 def sync_version_to_task( old_id ):
@@ -114,8 +120,7 @@ def sync_version_to_task( old_id ):
 
     updated = ''
     if result and result['entity'] and result['entity.Version.sg_task']:
-        if not DEV:
-            updated = sg.update(
+        updated = sg.update(
                     'Task', result['entity.Version.sg_task']['id'],
                     {'sg_status_list':result['entity.Version.sg_status_list'] }
                    )
@@ -131,7 +136,8 @@ def sync_version_to_task( old_id ):
             print page_addr
             print '\n'
 
-            send_rchat_msg( page_addr, result['entity.Version.sg_task'] )
+            if result['entity.Version.sg_task.Task.sg_status_list'] == 'tel':
+                send_rchat_msg( page_addr, result['entity.Version.sg_task'] )
 
             return result['id']
         else:

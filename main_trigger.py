@@ -34,6 +34,7 @@ PLUGIN_PATH = os.path.join( MOD_DIR , 'plugins' )
 LOG_DIR     = os.path.join( MOD_DIR , 'log'     )
 
 
+DEV = 0
 
 class PluginCollection:
     def __init__( self ):
@@ -146,29 +147,31 @@ def main():
         ##  Non-comment for excution part
         #########################################################################
         for plugin in pc:
-#            if plugin.excution_status():
-#                last_id = plugin.get_status_id()
-#                result = plugin.main( last_id )
-#            continue
-
-            try:
+            if DEV:
                 if plugin.excution_status():
                     last_id = plugin.get_status_id()
                     result = plugin.main( last_id )
-            except sa.ProtocolError:
-                print "Protocol Error"
-            except KeyboardInterrupt:
-                print "[ KeyboardInterrput ] %s"% timelog()
-                break
-            except:
-                print '^'*80
-                print '[',plugin._name,']', ' Unkwon error', last_id
-                print '^'*80
-                result = last_id + 1
-            finally:
-                if plugin.excution_status():
-                    plugin.set_status_id( result )
-                sys.stdout.flush()
+                continue
+
+            else:
+                try:
+                    if plugin.excution_status():
+                        last_id = plugin.get_status_id()
+                        result = plugin.main( last_id )
+                except sa.ProtocolError:
+                    print "Protocol Error"
+                except KeyboardInterrupt:
+                    print "[ KeyboardInterrput ] %s"% timelog()
+                    break
+                except:
+                    print '^'*80
+                    print '[',plugin._name,']', ' Unkwon error', last_id
+                    print '^'*80
+                    result = last_id + 1
+                finally:
+                    if plugin.excution_status():
+                        plugin.set_status_id( result )
+                    sys.stdout.flush()
 #
 
 def basename( path ):
