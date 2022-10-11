@@ -155,6 +155,7 @@ def main():
 
             else:
                 try:
+                    print 'excution_status : ', plugin.excution_status()
                     if plugin.excution_status():
                         last_id = plugin.get_status_id()
                         result = plugin.main( last_id )
@@ -165,7 +166,7 @@ def main():
                     break
                 except:
                     print '^'*80
-                    print '[',plugin._name,']', ' Unkwon error', last_id
+                    print '[',plugin._name,']', ' Unknown error', last_id
                     print '^'*80
                     result = last_id + 1
                 finally:
