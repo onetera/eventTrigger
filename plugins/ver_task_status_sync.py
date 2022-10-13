@@ -94,15 +94,12 @@ def sync_version_to_task( old_id ):
             dt.datetime.now().year,
             dt.datetime.now().month,
             dt.datetime.now().day,
-#            dt.datetime.now().hour,
-#            dt.datetime.now().minute
         )
         filters.append( ['created_at','greater_than',today] )
     else:
         filters.append( ['id', 'greater_than', old_id ] )
 
     result = sg.find_one(
-    #results = sg.find(
         'EventLogEntry', filters , keys
     )
     if not result:
@@ -119,6 +116,30 @@ def sync_version_to_task( old_id ):
     # print '\n'
 
     updated = ''
+
+    if result and result['entity.Version.sg_status_list'] in ['change', 'di_chg' ]:
+        shot_result= sg.find_one(
+                    'Task', 
+                    [
+                        ['id', 'is', result['entity.Version.sg_task']['id'] ],
+                    ],
+                    ['entity','entity.Shot.code']
+                )
+        if shot_result:
+            shot_update = sg.update( 
+                    'Shot', 
+                    shot_result['entity']['id'],
+                    { 'sg_status_list':result['entity.Version.sg_status_list'] }
+            )
+            print( '[ Version -> Shot status( None Task ) ]' )
+            print( '{:20} : {} / {}'.format( 
+                                                'Shot Name', 
+                                                result['project.Project.name'],
+                                                shot_result['entity.Shot.code']
+                            )
+            )
+            return result['id']
+
     if result and result['entity'] and result['entity.Version.sg_task']:
         updated = sg.update(
                     'Task', result['entity.Version.sg_task']['id'],
@@ -138,6 +159,29 @@ def sync_version_to_task( old_id ):
 
             if result['entity.Version.sg_task.Task.sg_status_list'] == 'tel':
                 send_rchat_msg( page_addr, result['entity.Version.sg_task'] )
+
+            if result['entity.Version.sg_status_list'] in ['dir', 'sh-dr', 'qc_rt', 'dir_ok', 'dir_rt']:
+                shot_result= sg.find_one(
+                        'Task', 
+                        [
+                            ['id', 'is', result['entity.Version.sg_task']['id'] ],
+                        ],
+                        ['entity','entity.Shot.code']
+                        )
+                if shot_result:
+                    shot_update = sg.update( 
+                            'Shot', 
+                            shot_result['entity']['id'],
+                            { 'sg_status_list':result['entity.Version.sg_status_list'] }
+                    )
+                    if shot_update:
+                        print( '[ Version -> Shot status ]' )
+                        print( '{:20} : {} / {}'.format( 
+                                                            'Shot Name', 
+                                                            result['project.Project.name'],
+                                                            shot_result['entity.Shot.code']
+                                                        )
+                            )
 
             return result['id']
         else:
@@ -197,28 +241,3 @@ def main2():
 
 if __name__ == '__main__':
     main()
-    # print get_status_id()
-
-    # filter = [
-    #     ['create_at','greater_than',]
-    # ]
-    # today = dt.datetime(
-    #                     dt.datetime.now().year,
-    #                     dt.datetime.now().month,
-    #                      dt.datetime.now().day
-    #                      )
-    # result = sg.find_one(
-    #                     'EventLogEntry',
-    #                     [
-    #                         ['attribute_name','is','sg_status_list'],
-    #                         ['event_type','is','Shotgun_Version_Change'],
-    #                         ['created_at','greater_than',today]
-    #                     ],
-    #                     ['created_at','description', 'entity','project.Project.name']
-    #                      )
-    # created = result['created_at'].strftime('%Y-%m-%d %H:%M:%S')
-    # print '{:15} : {}'.format( 'ID'         , result['id'] )
-    # print '{:15} : {}'.format( 'Project'    , result['project.Project.name'] )
-    # print '{:15} : {}'.format( 'Entity'     , result['entity']['name'] )
-    # print '{:15} : {}'.format( 'created_at' , created )
-    # print '{:15} : {}'.format( 'Description', result['description'] )
