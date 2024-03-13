@@ -7,7 +7,8 @@ import shotgun_api3 as sa
 import os
 
 import yaml
-from rocketchat.api import RocketChatAPI
+#from rocketchat.api import RocketChatAPI
+from rocketchat_API.rocketchat import RocketChat
 
 #global MAIN_ID
 MAIN_ID = 0
@@ -49,7 +50,7 @@ sg = sa.Shotgun(
 #     return int(result)
 
 def send_rchat_msg( content , task ):
-    api = RocketChatAPI(
+    api = RocketChat(
                     settings={
                         'username':'shotgun@west.co.kr',
                         'password':'west',
@@ -71,7 +72,7 @@ def send_rchat_msg( content , task ):
     room = api.create_im_room( user )
     api.send_message( u'Status가 tel로 변경되었습니다.', room['id'] )
     api.send_message( content, room['id'] )
-    print "\n[ Rockec Chat ] Sending message\n"
+    print( "\n[ Rockec Chat ] Sending message\n" )
 
 
 def sync_version_to_task( old_id ):
@@ -108,7 +109,7 @@ def sync_version_to_task( old_id ):
         return old_id
     #for result in results:
     if old_id == result['id']:
-        print "Previous ID is same with old id"
+        print( "Previous ID is same with old id" )
         result = {}
         result['id'] = old_id
         return old_id
@@ -126,11 +127,12 @@ def sync_version_to_task( old_id ):
                     ['entity','entity.Shot.code']
                 )
         if shot_result:
-            shot_update = sg.update( 
-                    'Shot', 
-                    shot_result['entity']['id'],
-                    { 'sg_status_list':result['entity.Version.sg_status_list'] }
-            )
+            if not DEV:
+                shot_update = sg.update( 
+                        'Shot', 
+                        shot_result['entity']['id'],
+                        { 'sg_status_list':result['entity.Version.sg_status_list'] }
+                )
             print( '[ Version -> Shot status( None Task ) ]' )
             print( '{:20} : {} / {}'.format( 
                                                 'Shot Name', 
@@ -148,14 +150,14 @@ def sync_version_to_task( old_id ):
         if updated:
             created   = result['created_at'].strftime('%Y-%m-%d %H:%M:%S')
             page_addr = 'https://west.shotgunstudio.com/detail/task/{}'.format( result['entity.Version.sg_task']['id'] )
-            print '[Version status update Task status]','*'*50
-            print '{:15} : {}'.format( 'ID'         , result['id'] )
-            print '{:15} : {} / {}'.format( 'Project'    , result['project.Project.name'],
-                                            result['entity']['name']  )
-            print '{:15} : {}'.format( 'created_at' , created )
-            print '{:15} : {}'.format( 'Description', result['description'] )
-            print page_addr
-            print '\n'
+            print( '[Version status update Task status]','*'*50 )
+            print( '{:15} : {}'.format( 'ID'         , result['id'] ) )
+            print( '{:15} : {} / {}'.format( 'Project'    , result['project.Project.name'],
+                                            result['entity']['name']  ) )
+            print( '{:15} : {}'.format( 'created_at' , created ) )
+            print( '{:15} : {}'.format( 'Description', result['description'] ) )
+            print( page_addr )
+            print( )
 
             if result['entity.Version.sg_task.Task.sg_status_list'] == 'tel':
                 send_rchat_msg( page_addr, result['entity.Version.sg_task'] )
@@ -169,11 +171,13 @@ def sync_version_to_task( old_id ):
                         ['entity','entity.Shot.code']
                         )
                 if shot_result:
-                    shot_update = sg.update( 
-                            'Shot', 
-                            shot_result['entity']['id'],
-                            { 'sg_status_list':result['entity.Version.sg_status_list'] }
-                    )
+                    shot_update = 1
+                    if not DEV:
+                        shot_update = sg.update( 
+                                'Shot', 
+                                shot_result['entity']['id'],
+                                { 'sg_status_list':result['entity.Version.sg_status_list'] }
+                        )
                     if shot_update:
                         print( '[ Version -> Shot status ]' )
                         print( '{:20} : {} / {}'.format( 
@@ -185,11 +189,11 @@ def sync_version_to_task( old_id ):
 
             return result['id']
         else:
-            print "[ No Updated ]"
+            print( "[ No Updated ]" )
             return result['id']
     else:
         pprint( result )
-        print "entity or Version.sg_task is none type"
+        print( "entity or Version.sg_task is none type" )
         return result['id']
 
 def main( last_id = False ):
@@ -221,9 +225,9 @@ def main2():
         except KeyboardInterrupt:
             break
         except:
-            print '\n'
-            print '[ Error  ]',time.strftime( '%Y-%m-%d %H:%S', time.localtime() )
-            print '[ old id ]',old_id
+            print( '\n' )
+            print( '[ Error  ]',time.strftime( '%Y-%m-%d %H:%S', time.localtime() ) )
+            print( '[ old id ]',old_id )
            #pprint( result )
 
 
