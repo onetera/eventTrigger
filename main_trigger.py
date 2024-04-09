@@ -26,21 +26,20 @@ sg = sa.Shotgun(
 )
 
 
-# PLUGIN_PATH= '/storenext/inhouse/tool/shotgun/event_trigger/plugins'
-# LOG_DIR = '/storenext/inhouse/log/eventTrigger'
-
 MOD_DIR     = os.path.abspath( os.path.dirname( __file__ ) )
 PLUGIN_PATH = os.path.join( MOD_DIR , 'plugins' )
 LOG_DIR     = os.path.join( MOD_DIR , 'log'     )
 
 
-DEV = 0
+DEV = 1
 
 class PluginCollection:
     def __init__( self ):
         self.files = [ Plugin( x ) for x in glob.glob( PLUGIN_PATH + os.sep + '*.py' ) \
                        if basename(x)[0] not in '_'
                        ]
+        print( 'Plugins Collection' )
+        print( [ x.name for x in self.files if 'util' not in x.name ] )                        
 
     def __iter__(self):
         for x in self.files:
@@ -50,15 +49,16 @@ class PluginCollection:
 class Plugin:
     def __init__( self, path ):
         self._path = path
-        self._name = basename( path )
+        self.name = basename( path )
         self.load()
-        self.event_file = MOD_DIR + os.sep + './last_id'  + os.sep +  self._name + '.id'
+        self.id_file  = MOD_DIR + os.sep + './last_id'  + os.sep +  self.name + '.id'
+        self.log_file = LOG_DIR + os.sep + self.name + '.' + dt.datetime.strftime( dt.datetime.now() , '%Y%m' )+ '.log'
 
     def load(self):
-        self.plugin = imp.load_source( self._name , self._path )
+        self.plugin = imp.load_source( self.name , self._path )
 
     def main(self, arg ):
-        self.plugin = imp.load_source( self._name , self._path )
+        self.plugin = imp.load_source( self.name , self._path )
         return self.plugin.main(arg)
 
     def __str__(self):
@@ -67,22 +67,24 @@ class Plugin:
     def excution_status(self):
         with open( MOD_DIR + os.sep + './config.yml') as f:
             data = yaml.load( f, Loader = yaml.FullLoader )
-        status = data['plugins'][self._name]['excution']
+        status = data['plugins'][self.name]['excution']
         return status
 
     def set_status_id( self , _id ):
-        with open( self.event_file , 'w' ) as f:
+        with open( self.id_file , 'w' ) as f:
             f.write( str(_id) )
 
     def get_status_id( self ):
-        if not os.path.exists( self.event_file ):
+        if not os.path.exists( self.id_file ):
             return False
-        with open( self.event_file ) as f:
+        with open( self.id_file ) as f:
             result = f.read()
         return int(result)
 
+
 def timelog():
     return time.strftime( '%Y-%m-%d %H:%M:%S', time.localtime() )
+
 
 def log_filepath():
     log_file = 'event.'+ dt.datetime.strftime( dt.datetime.now() , '%Y%m' )+ '.log'
@@ -92,54 +94,38 @@ def log_filepath():
         f.close()
     return log_path
 
-def main():
-    # pc = PluginCollection()
-    # while True:
-    #     time.sleep( 5 )
-    #     for plugin in pc:
-    #         last_id = plugin.get_status_id()
-    #         result  = plugin.main( last_id )
-    #         plugin.set_status_id( result )
-    #         # sys.stdout.flush()
-    #     continue
-    # return
 
-#    log_file = 'event.'+ dt.datetime.strftime( dt.datetime.now() , '%Y%m' )+ '.log'
-#    log_path = os.path.join( LOG_DIR , log_file ) 
-#    if not os.path.exists( log_path ):
-#        f = open( log_path ,'w' )
-#        f.close()
+def main():
     
     log_path = log_filepath()
     
     so = open( log_path, 'a+')
     sys.stdout = so
 
-    print " *** Started main event logger *** "
+    print( " *** Started main event logger *** " )
 
     pc = PluginCollection()
-    print '-'*50
-    print '[Started log]',timelog()
-    print '-'*50
-    print
+    print( '-'*50 )
+    print( '[Started log]' , timelog() )
+    print( '-'*50 )
+    print()
     sys.stdout.flush()
 
     while True:
         time.sleep( 3 )
 
-        log_path = log_filepath()
-        so = open( log_path, 'a+')
-        sys.stdout = so
+#        log_path = log_filepath()
+#        so = open( log_path, 'a+')
+#        sys.stdout = so
 
        # print time.strftime( '%Y-%m-%d %H:%M:%S', time.localtime() )
        # sys.stdout.flush()
        # continue
 
-        # for plugin in pc:
-        #     last_id = plugin.get_status_id()
-        #     result  = plugin.main( last_id )
+#        for plugin in pc:
+#            last_id = plugin.get_status_id()
+#            result  = plugin.main( last_id )
 #            plugin.set_status_id( result )
-#            sys.stdout.flush()
 #        continue
 
         #########################################################################
@@ -147,32 +133,38 @@ def main():
         ##  Non-comment for excution part
         #########################################################################
         for plugin in pc:
-            if DEV:
-                if plugin.excution_status():
+            print( plugin.name )
+            #print( '[{}] id: {}'.format( plugin.name, str( last_id ) ) )
+            if plugin.excution_status():
+                if DEV:
                     last_id = plugin.get_status_id()
-                    result = plugin.main( last_id )
-                continue
+                    result  = plugin.main( last_id )
+                    print( '[ DEV {} ] id: {}'.format( plugin.name, str( result ) ) )
+                    result = result + 1
+                    plugin.set_status_id( result )
+                    #continue
 
-            else:
-                try:
-                    print 'excution_status : ', plugin.excution_status()
-                    if plugin.excution_status():
+                else:
+                    try:
                         last_id = plugin.get_status_id()
                         result = plugin.main( last_id )
-                except sa.ProtocolError:
-                    print "Protocol Error"
-                except KeyboardInterrupt:
-                    print "[ KeyboardInterrput ] %s"% timelog()
-                    break
-                except:
-                    print '^'*80
-                    print '[',plugin._name,']', ' Unknown error', last_id
-                    print '^'*80
-                    result = last_id + 1
-                finally:
-                    if plugin.excution_status():
-                        plugin.set_status_id( result )
-                    sys.stdout.flush()
+                    except sa.ProtocolError:
+                        print( "Protocol Error" )
+                    except KeyboardInterrupt:
+                        print( "[ KeyboardInterrput ] %s"% timelog() )
+                        break
+                    except:
+                        print( '^'*80 )
+                        print( '[ {} ] {} : {} '.format( plugin.name, ' Unknown error', last_id ) )
+                        print( '^'*80 )
+                        result = last_id + 1
+                    finally:
+                        if plugin.excution_status():
+                            plugin.set_status_id( result )
+                        sys.stdout.flush()
+                print( '[ {} ] excution_status {} : {}'.format( plugin.name, last_id, plugin.excution_status() ) )
+                sys.stdout.flush()
+#            print( '[ '+plugin._name + ' ] excution_status : ' + plugin.excution_status(), last_id ) 
 #
 
 def basename( path ):

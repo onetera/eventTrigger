@@ -1,4 +1,6 @@
 plugins:
     ver_task_status_sync:
+        excution: false
+    allocate_nk_file:
         excution: true
 
