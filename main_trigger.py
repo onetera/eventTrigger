@@ -31,7 +31,7 @@ PLUGIN_PATH = os.path.join( MOD_DIR , 'plugins' )
 LOG_DIR     = os.path.join( MOD_DIR , 'log'     )
 
 
-DEV = 1
+DEV = 0
 
 class PluginCollection:
     def __init__( self ):
@@ -145,6 +145,9 @@ def main():
                     #continue
 
                 else:
+                    last_id = plugin.get_status_id()
+                    result = plugin.main( last_id )
+                    continue
                     try:
                         last_id = plugin.get_status_id()
                         result = plugin.main( last_id )
