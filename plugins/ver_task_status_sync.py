@@ -8,7 +8,7 @@ import os
 
 import yaml
 #from rocketchat.api import RocketChatAPI
-from rocketchat_API.rocketchat import RocketChat
+#from rocketchat_API.rocketchat import RocketChat
 
 #global MAIN_ID
 MAIN_ID = 0
@@ -49,30 +49,30 @@ sg = sa.Shotgun(
 #     print 'result id : ', result
 #     return int(result)
 
-def send_rchat_msg( content , task ):
-    api = RocketChat(
-                    settings={
-                        'username':'shotgun@west.co.kr',
-                        'password':'west',
-                        'domain':'http://10.0.20.73:3000'
-                        }
-                )
-
-    user = ''
-    if 'anim' in task :
-        user = u'@Animation_윤호근' 
-    elif 'rig' in task:
-        user = u'@Rigging_전병근'
-    elif 'sim' in task:
-        user = u'@Rigging_전병근'
-
-    if not user:
-        return
-
-    room = api.create_im_room( user )
-    api.send_message( u'Status가 tel로 변경되었습니다.', room['id'] )
-    api.send_message( content, room['id'] )
-    print( "\n[ Rockec Chat ] Sending message\n" )
+#def send_rchat_msg( content , task ):
+#    api = RocketChat(
+#                    settings={
+#                        'username':'shotgun@west.co.kr',
+#                        'password':'west',
+#                        'domain':'http://10.0.20.73:3000'
+#                        }
+#                )
+#
+#    user = ''
+#    if 'anim' in task :
+#        user = u'@Animation_윤호근' 
+#    elif 'rig' in task:
+#        user = u'@Rigging_전병근'
+#    elif 'sim' in task:
+#        user = u'@Rigging_전병근'
+#
+#    if not user:
+#        return
+#
+#    room = api.create_im_room( user )
+#    api.send_message( u'Status가 tel로 변경되었습니다.', room['id'] )
+#    api.send_message( content, room['id'] )
+#    print( "\n[ Rockec Chat ] Sending message\n" )
 
 
 def sync_version_to_task( old_id ):
