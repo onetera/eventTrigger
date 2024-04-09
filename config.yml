@@ -2,5 +2,7 @@ plugins:
     ver_task_status_sync:
         excution: true
     allocate_nk_file:
+        excution: false
+    move2ftp: 
         excution: true
 

@@ -77,7 +77,7 @@ def allocate_nk_file( old_id ):
     print( log )
 
     if result['entity.PublishedFile.path_cache' ]:
-        ftp_filepath = '/fpt/west_rnd/shotgrid_pub/show/' + result['entity.PublishedFile.path_cache' ]
+        ftp_filepath = '/ftp/west_rnd/shotgrid_pub/show/' + result['entity.PublishedFile.path_cache' ]
         if not os.path.exists( ftp_filepath ):
             print(  
                     '[ {:20}] {} \n {}\n'.format(
