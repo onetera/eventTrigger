@@ -31,7 +31,7 @@ PLUGIN_PATH = os.path.join( MOD_DIR , 'plugins' )
 LOG_DIR     = os.path.join( MOD_DIR , 'log'     )
 
 
-DEV = 0
+DEV = 1
 
 class PluginCollection:
     def __init__( self ):
@@ -39,7 +39,7 @@ class PluginCollection:
                        if basename(x)[0] not in '_'
                        ]
         print( 'Plugins Collection' )
-        print( [ x.name for x in self.files ] )                        
+        print( [ x.name for x in self.files if 'util' not in x.name ] )                        
 
     def __iter__(self):
         for x in self.files:
@@ -139,7 +139,8 @@ def main():
                 if DEV:
                     last_id = plugin.get_status_id()
                     result  = plugin.main( last_id )
-                    print( '[{}] id: {}'.format( plugin.name, str( last_id ) ) )
+                    print( '[ DEV {} ] id: {}'.format( plugin.name, str( result ) ) )
+                    result = result + 1
                     plugin.set_status_id( result )
                     #continue
 
