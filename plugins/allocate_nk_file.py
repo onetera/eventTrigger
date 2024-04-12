@@ -32,7 +32,7 @@ def allocate_nk_file( old_id ):
 
     filters = [
         ['attribute_name','is','tags'],
-        ['event_type','is','Shotgun_PublishedFile_New'],
+        ['event_type','is','Shotgun_PublishedFile_Change'],
         ['entity.PublishedFile.tags', 'in', vn_tag ],
     ]
 
@@ -51,6 +51,8 @@ def allocate_nk_file( old_id ):
     else:
         filters.append( ['id', 'greater_than', old_id ] )
 
+    print( filters )
+    print( '-' * 50 )
     result = sg.find_one(
         'EventLogEntry', filters , keys
     )
@@ -58,9 +60,9 @@ def allocate_nk_file( old_id ):
     if not result:
         result = {}
         result['id'] = old_id
-#        print( 
-#            '[ Error ] There is no search result in EventLogEntity'
-#        )
+        print( 
+            '[ Error ] There is no search result in EventLogEntity'
+        )
         return old_id
 
     if old_id == result['id']:
@@ -108,4 +110,21 @@ def main( last_id = False ):
 
 
 if __name__ == '__main__':
-    main()
+    main(  )
+#    filters = [
+#                    ['attribute_name', 'is', 'tags'], 
+#                    ['event_type', 'is', 'Shotgun_PublishedFile_Change'], 
+#                    ['entity.PublishedFile.tags', 'in', {'id': 16936, 'name': 'ww_vietnam', 'type': 'Tag'}], 
+#                    ['id', 'greater_than', 98883865]
+#                ]
+#
+#    keys = [
+#        'created_at','description', 'entity','project.Project.name',
+#        'entity.PublishedFile.code',
+#        'entity.PublishedFile.path_cache',
+#    ]
+#    result = sg.find_one(
+#        'EventLogEntry', filters , keys
+#    )
+#    pprint( result )
+
