@@ -31,7 +31,7 @@ def allocate_nk_file( old_id ):
     }
 
     filters = [
-        ['attribute_name','is',''],
+        ['attribute_name','is','tags'],
         ['event_type','is','Shotgun_PublishedFile_New'],
         ['entity.PublishedFile.tags', 'in', vn_tag ],
     ]
@@ -58,9 +58,9 @@ def allocate_nk_file( old_id ):
     if not result:
         result = {}
         result['id'] = old_id
-        print( 
-            '[ Error ] There is no search result in EventLogEntity'
-        )
+#        print( 
+#            '[ Error ] There is no search result in EventLogEntity'
+#        )
         return old_id
 
     if old_id == result['id']:

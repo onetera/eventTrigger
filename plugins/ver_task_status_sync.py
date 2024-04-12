@@ -140,6 +140,8 @@ def sync_version_to_task( old_id ):
                                                 shot_result['entity.Shot.code']
                             )
             )
+            print( '\n' )
+
             return result['id']
 
     if result and result['entity'] and result['entity.Version.sg_task']:
@@ -157,7 +159,7 @@ def sync_version_to_task( old_id ):
             print( '{:15} : {}'.format( 'created_at' , created ) )
             print( '{:15} : {}'.format( 'Description', result['description'] ) )
             print( page_addr )
-            print( )
+            print( '\n' )
 
             if result['entity.Version.sg_task.Task.sg_status_list'] == 'tel':
                 send_rchat_msg( page_addr, result['entity.Version.sg_task'] )
@@ -186,6 +188,7 @@ def sync_version_to_task( old_id ):
                                                             shot_result['entity.Shot.code']
                                                         )
                             )
+                        print( '\n' )
 
             return result['id']
         else:
