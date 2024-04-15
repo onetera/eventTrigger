@@ -161,8 +161,8 @@ def sync_version_to_task( old_id ):
             print( page_addr )
             print( '\n' )
 
-            if result['entity.Version.sg_task.Task.sg_status_list'] == 'tel':
-                send_rchat_msg( page_addr, result['entity.Version.sg_task'] )
+#            if result['entity.Version.sg_task.Task.sg_status_list'] == 'tel':
+#                send_rchat_msg( page_addr, result['entity.Version.sg_task'] )
 
             if result['entity.Version.sg_status_list'] in ['dir', 'sh-dr', 'qc_rt', 'dir_ok', 'dir_rt']:
                 shot_result= sg.find_one(
