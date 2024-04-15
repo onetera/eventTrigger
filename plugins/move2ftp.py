@@ -25,8 +25,17 @@ def get_ftp_tag_id( old_id ):
     filters = [
         [ 'event_type', 'is', 'Shotgun_Version_Change' ],
         [ 'attribute_name' , 'is', 'tags' ],
-        [ 'id', 'greater_than', old_id ]
+    #    [ 'id', 'greater_than', old_id ]
     ] 
+    if not old_id:
+        today = dt.datetime(
+            dt.datetime.now().year,
+            dt.datetime.now().month,
+            dt.datetime.now().day,
+        )
+        filters.append( ['created_at','greater_than',today] )
+    else:
+        filters.append( ['id', 'greater_than', old_id ] )
 
     keys = [
         'meta',
@@ -39,8 +48,11 @@ def get_ftp_tag_id( old_id ):
 
 
 
-    if result and 'ftp' in result['entity.Version.tags'][0]['name']:
-        return result['id']
+    if result and result['entity.Version.tags']:
+        if result['entity.Version.tags'][0]['name']:
+            return result['id']
+        else:
+            return old_id 
     else:
         return old_id 
 
@@ -147,7 +159,7 @@ def main( _id ):
 
 
 if __name__ == '__main__':
-    event_id = 93148520
+    event_id = 91600976
     event = sg.find_one( 
         'EventLogEntry' , 
         [
@@ -164,5 +176,4 @@ if __name__ == '__main__':
             'entity.Version.code',
         ]
     )
-    print( event['entity.Version.tags'] )
-    print( event['entity.Version.tags'][0]['name'] )
+    print( event['entity.Version.code'] )
