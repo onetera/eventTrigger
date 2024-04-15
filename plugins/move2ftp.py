@@ -62,8 +62,11 @@ def get_event( event_id ):
             'entity.Version.code',
         ]
     )
-    if event and 'ftp' in event['entity.Version.tags'][0]['name']:
-        return event
+    if event and event['entity.Version.tags']:
+        if 'ftp' in event['entity.Version.tags'][0]['name']:
+            return event
+        else:
+            return {'id':event_id}
     else:
         return {'id':event_id}
 
@@ -143,4 +146,23 @@ def main( _id ):
 
 
 
-
+if __name__ == '__main__':
+    event_id = 93148520
+    event = sg.find_one( 
+        'EventLogEntry' , 
+        [
+            [ 'id', 'greater_than', event_id ],
+            [ 'event_type', 'is', 'Shotgun_Version_Change' ],
+            [ 'attribute_name' , 'is', 'tags' ],
+        ],
+        [ 
+            'entity.Version.sg_path_to_frames',
+            'entity.Version.sg_path_to_movie',
+            'entity.Version.id',
+            'entity.Version.tags',
+            'entity.Version.project.Project.name',
+            'entity.Version.code',
+        ]
+    )
+    print( event['entity.Version.tags'] )
+    print( event['entity.Version.tags'][0]['name'] )
