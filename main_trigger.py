@@ -145,8 +145,8 @@ def main():
                     #continue
 
                 else:
-                    last_id = plugin.get_status_id()
-                    result = plugin.main( last_id )
+                    # last_id = plugin.get_status_id()
+                    # result = plugin.main( last_id )
                     #continue
                     try:
                         last_id = plugin.get_status_id()
