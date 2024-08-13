@@ -18,6 +18,7 @@ import shotgun_api3 as sa
 import os
 import glob
 import yaml
+import traceback
 
 sg = sa.Shotgun(
     'https://west.shotgunstudio.com',
@@ -159,6 +160,7 @@ def main():
                     except:
                         print( '^'*80 )
                         print( '[ {} ] {} : {} '.format( plugin.name, ' Unknown error', last_id ) )
+                        print( "Error: {}".format(str(traceback.format_exc())) )
                         print( '^'*80 )
                         result = last_id + 1
                     finally:

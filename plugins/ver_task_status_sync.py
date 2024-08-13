@@ -118,19 +118,19 @@ def sync_version_to_task( old_id ):
 
     updated = ''
 
-    if result and result['entity.Version.sg_status_list'] in ['change', 'di_chg' ]:
-        shot_result= sg.find_one(
-                    'Task', 
+    if result and result['entity.Version.sg_status_list'] in ['change', 'di_chg' ] and not result['entity.Version.sg_task']:
+        shot_result = sg.find_one(
+                    'Shot',
                     [
-                        ['id', 'is', result['entity.Version.sg_task']['id'] ],
+                        ['sg_versions', 'in', result['entity']]
                     ],
-                    ['entity','entity.Shot.code']
+                    ['code', 'id']
                 )
         if shot_result:
             if not DEV:
                 shot_update = sg.update( 
                         'Shot', 
-                        shot_result['entity']['id'],
+                        shot_result['id'],
                         { 'sg_status_list':result['entity.Version.sg_status_list'] }
                 )
             print( '[ Version -> Shot status( None Task ) ]' )
@@ -145,9 +145,10 @@ def sync_version_to_task( old_id ):
             return result['id']
 
     if result and result['entity'] and result['entity.Version.sg_task']:
-        updated = sg.update(
-                    'Task', result['entity.Version.sg_task']['id'],
-                    {'sg_status_list':result['entity.Version.sg_status_list'] }
+        if not DEV:
+            updated = sg.update(
+                        'Task', result['entity.Version.sg_task']['id'],
+                        {'sg_status_list':result['entity.Version.sg_status_list'] }
                    )
         if updated:
             created   = result['created_at'].strftime('%Y-%m-%d %H:%M:%S')
