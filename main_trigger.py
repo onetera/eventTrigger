@@ -154,6 +154,8 @@ def main():
                         result = plugin.main( last_id )
                     except sa.ProtocolError:
                         print( "Protocol Error" )
+                        print( "Error: {}".format(str(traceback.format_exc())) )
+                        result = last_id
                     except KeyboardInterrupt:
                         print( "[ KeyboardInterrput ] %s"% timelog() )
                         break
