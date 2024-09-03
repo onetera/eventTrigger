@@ -137,7 +137,7 @@ def sync_version_to_task( old_id ):
             print( '{:20} : {} / {}'.format( 
                                                 'Shot Name', 
                                                 result['project.Project.name'],
-                                                shot_result['entity.Shot.code']
+                                                shot_result['code']
                             )
             )
             print( '\n' )
